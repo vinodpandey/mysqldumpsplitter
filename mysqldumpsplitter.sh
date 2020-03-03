@@ -268,7 +268,7 @@ dump_splitter()
                         include_dump_info $MATCH_STR
 
                         echo "Extracting Database: $MATCH_STR";
-                        $DECOMPRESSION $SOURCE | sed -n "/^-- Current Database: \`$MATCH_STR\`/,/^-- Current Database: /p" | $COMPRESSION >> $OUTPUT_DIR/$MATCH_STR.$EXT
+                        $DECOMPRESSION $SOURCE | LC_ALL=C sed -n "/^-- Current Database: \`$MATCH_STR\`/,/^-- Current Database: /p" | $COMPRESSION >> $OUTPUT_DIR/$MATCH_STR.$EXT
                         echo "${txtbld} Database $MATCH_STR  extracted from $SOURCE at $OUTPUT_DIR${txtrst}"
                         ;;
 
@@ -279,7 +279,7 @@ dump_splitter()
                         #Loop for each tablename found in provided dumpfile
                         echo "Extracting $MATCH_STR."
                         #Extract table specific dump to tablename.sql
-                        $DECOMPRESSION  $SOURCE | sed -n "/^-- Table structure for table \`$MATCH_STR\`/,/^-- Table structure for table/p" | $COMPRESSION >> $OUTPUT_DIR/$MATCH_STR.$EXT
+                        $DECOMPRESSION  $SOURCE | LC_ALL=C sed -n "/^-- Table structure for table \`$MATCH_STR\`/,/^-- Table structure for table/p" | $COMPRESSION >> $OUTPUT_DIR/$MATCH_STR.$EXT
                         echo "${txtbld} Table $MATCH_STR  extracted from $SOURCE at $OUTPUT_DIR${txtrst}"
                         ;;
 
@@ -291,7 +291,7 @@ dump_splitter()
 
                                 echo "Extracting Database $dbname..."
                                 #Extract database specific dump to database.sql.gz
-                                $DECOMPRESSION $SOURCE | sed -n "/^-- Current Database: \`$dbname\`/,/^-- Current Database: /p" | $COMPRESSION >> $OUTPUT_DIR/$dbname.$EXT
+                                $DECOMPRESSION $SOURCE | LC_ALL=C sed -n "/^-- Current Database: \`$dbname\`/,/^-- Current Database: /p" | $COMPRESSION >> $OUTPUT_DIR/$dbname.$EXT
                                 DB_COUNT=$((DB_COUNT+1))
                          echo "${txtbld}Database $dbname extracted from $SOURCE at $OUTPUT_DIR/$dbname.$EXT${txtrst}"
                         done;
@@ -306,7 +306,7 @@ dump_splitter()
                          include_dump_info $tablename
 
                          #Extract table specific dump to tablename.sql
-                         $DECOMPRESSION $SOURCE | sed -n "/^-- Table structure for table \`$tablename\`/,/^-- Table structure for table/p" | $COMPRESSION >> $OUTPUT_DIR/$tablename.$EXT
+                         $DECOMPRESSION $SOURCE | LC_ALL=C sed -n "/^-- Table structure for table \`$tablename\`/,/^-- Table structure for table/p" | $COMPRESSION >> $OUTPUT_DIR/$tablename.$EXT
                          TABLE_COUNT=$((TABLE_COUNT+1))
                          echo "${txtbld}Table $tablename extracted from $DUMP_FILE at $OUTPUT_DIR/$tablename.$EXT${txtrst}"
                         done;
@@ -322,7 +322,7 @@ dump_splitter()
 
                          echo "Extracting $tablename..."
                                 #Extract table specific dump to tablename.sql
-                                $DECOMPRESSION $SOURCE | sed -n "/^-- Table structure for table \`$tablename\`/,/^-- Table structure for table/p" | $COMPRESSION >> $OUTPUT_DIR/$tablename.$EXT
+                                $DECOMPRESSION $SOURCE | LC_ALL=C sed -n "/^-- Table structure for table \`$tablename\`/,/^-- Table structure for table/p" | $COMPRESSION >> $OUTPUT_DIR/$tablename.$EXT
                          echo "${txtbld}Table $tablename extracted from $DUMP_FILE at $OUTPUT_DIR/$tablename.$EXT${txtrst}"
                                 TABLE_COUNT=$((TABLE_COUNT+1))
                         done;
@@ -338,14 +338,14 @@ dump_splitter()
                         fi;
                         TABLE_COUNT=0;
 
-                        for tablename in $( $DECOMPRESSION $SOURCE | sed -n "/^-- Current Database: \`$MATCH_DB\`/,/^-- Current Database: /p" | grep -E "^-- Table structure for table \`$MATCH_TBLS" | awk -F '\`' {'print $2'} )
+                        for tablename in $( $DECOMPRESSION $SOURCE | LC_ALL=C sed -n "/^-- Current Database: \`$MATCH_DB\`/,/^-- Current Database: /p" | grep -E "^-- Table structure for table \`$MATCH_TBLS" | awk -F '\`' {'print $2'} )
                         do
                                 echo "Extracting $tablename..."
                                 #Extract table specific dump to tablename.sql
                          # Include first 17 lines of standard mysqldump to preserve time_zone and charset.
                          include_dump_info $tablename
 
-                                $DECOMPRESSION $SOURCE | sed -n "/^-- Current Database: \`$MATCH_DB\`/,/^-- Current Database: /p" | sed -n "/^-- Table structure for table \`$tablename\`/,/^-- Table structure for table/p" | $COMPRESSION >> $OUTPUT_DIR/$tablename.$EXT
+                                $DECOMPRESSION $SOURCE | LC_ALL=C sed -n "/^-- Current Database: \`$MATCH_DB\`/,/^-- Current Database: /p" | LC_ALL=C sed -n "/^-- Table structure for table \`$tablename\`/,/^-- Table structure for table/p" | $COMPRESSION >> $OUTPUT_DIR/$tablename.$EXT
                          echo "${txtbld}Table $tablename extracted from $DUMP_FILE at $OUTPUT_DIR/$tablename.$EXT${txtrst}"
                                 TABLE_COUNT=$((TABLE_COUNT+1))
                         done;
@@ -409,7 +409,7 @@ while [ "$1" != "" ]; do
                         echo "-------------------------------";
                         echo "Database\t\tTables";
                         echo "-------------------------------";
-                        $DECOMPRESSION $SOURCE | grep -E "(^-- Current Database:|^-- Table structure for table)" | sed  's/-- Current Database: /-------------------------------\n/' | sed 's/-- Table structure for table /\t\t/'| sed 's/`//g' ;
+                        $DECOMPRESSION $SOURCE | grep -E "(^-- Current Database:|^-- Table structure for table)" | LC_ALL=C sed  's/-- Current Database: /-------------------------------\n/' | LC_ALL=C sed 's/-- Table structure for table /\t\t/'| LC_ALL=C sed 's/`//g' ;
                         echo "-------------------------------";
                         exit 0;
                 ;;
